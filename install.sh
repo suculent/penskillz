@@ -33,6 +33,14 @@ need() { command -v "$1" >/dev/null 2>&1 || { echo "missing: $1" >&2; exit 1; };
 need git
 need python3
 
+# PyYAML is needed by the yaml-binary extractor (GTFOBins, LOLBAS). The other
+# extractors degrade to a tiny built-in YAML subset parser. Install if missing.
+if ! python3 -c 'import yaml' >/dev/null 2>&1; then
+  echo ">> installing PyYAML (needed by yaml-binary extractor)"
+  python3 -m pip install --user --quiet pyyaml || \
+    echo "!! PyYAML install failed — GTFOBins/LOLBAS extraction will be skipped"
+fi
+
 if [[ -d "$HOME_DIR/.git" ]]; then
   echo ">> updating $HOME_DIR"
   git -C "$HOME_DIR" pull --ff-only

@@ -155,7 +155,9 @@ class Source:
     extractor: str = "strix"
     prefix: str = ""
     exclude: list = field(default_factory=list)
+    include: list = field(default_factory=list)
     license: str = ""
+    options: dict = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, d: dict) -> "Source":
@@ -167,7 +169,9 @@ class Source:
             extractor=d.get("extractor") or "strix",
             prefix=d.get("prefix") or "",
             exclude=list(d.get("exclude") or []),
+            include=list(d.get("include") or []),
             license=d.get("license") or "",
+            options=dict(d.get("options") or {}),
         )
 
     def to_dict(self) -> dict:
@@ -177,10 +181,14 @@ class Source:
         out["extractor"] = self.extractor
         if self.prefix:
             out["prefix"] = self.prefix
+        if self.include:
+            out["include"] = self.include
         if self.exclude:
             out["exclude"] = self.exclude
         if self.license:
             out["license"] = self.license
+        if self.options:
+            out["options"] = self.options
         return out
 
     def checkout_dir(self) -> Path:

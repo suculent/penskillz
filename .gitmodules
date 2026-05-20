@@ -3,3 +3,27 @@
 	url = https://github.com/usestrix/strix.git
 	branch = main
 	shallow = true
+[submodule "sources/payloads-all-the-things"]
+	path = sources/payloads-all-the-things
+	url = https://github.com/swisskyrepo/PayloadsAllTheThings.git
+	branch = master
+[submodule "sources/gtfobins"]
+	path = sources/gtfobins
+	url = https://github.com/GTFOBins/GTFOBins.github.io.git
+	branch = master
+[submodule "sources/lolbas"]
+	path = sources/lolbas
+	url = https://github.com/LOLBAS-Project/LOLBAS.git
+	branch = master
+[submodule "sources/mastg"]
+	path = sources/mastg
+	url = https://github.com/OWASP/mastg.git
+	branch = master
+[submodule "sources/hacktricks"]
+	path = sources/hacktricks
+	url = https://github.com/HackTricks-wiki/hacktricks.git
+	branch = master
+[submodule "sources/internal-all-the-things"]
+	path = sources/internal-all-the-things
+	url = https://github.com/swisskyrepo/InternalAllTheThings.git
+	branch = main

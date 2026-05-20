@@ -2,7 +2,19 @@
 
 **Agent skills for penetration testing.** Web apps, APIs, networks, mobile apps, Windows and Linux hosts — extracted from upstream pentesting frameworks and packaged as drop-in skills for Claude Code, Codex, and Qwen Code.
 
-Today the registry ships [Strix](https://github.com/usestrix/strix) (37 skills covering web vulnerabilities, recon, protocols, frameworks, technologies, and tooling). Adding a new upstream is one YAML stanza.
+Today the registry ships **seven upstreams** (~1,400 extracted skills):
+
+| Source | Gap covered | Skills |
+| --- | --- | --- |
+| [Strix](https://github.com/usestrix/strix) | Web / API / GraphQL / frameworks / cloud — methodology-first | 37 |
+| [InternalAllTheThings](https://github.com/swisskyrepo/InternalAllTheThings) | Active Directory + internal network pentesting | ~165 |
+| [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings) | Web payload library — broader injection / bypass surface | ~105 |
+| [OWASP MASTG](https://github.com/OWASP/mastg) | Mobile (iOS + Android) testing & techniques | ~425 |
+| [HackTricks](https://github.com/HackTricks-wiki/hacktricks) | Network services, Linux/Windows/macOS hardening, mobile, binary | ~670 |
+| [GTFOBins](https://github.com/GTFOBins/GTFOBins.github.io) | Linux/Unix host: legit-binary shell-escape, privesc, file-IO | 11 (grouped by technique) |
+| [LOLBAS](https://github.com/LOLBAS-Project/LOLBAS) | Windows host: signed-binary execute, download, AWL bypass | 15 (grouped by technique) |
+
+Adding a new upstream is one YAML stanza.
 
 ---
 
@@ -95,7 +107,16 @@ penskillz add-source nuclei-playbooks https://github.com/projectdiscovery/nuclei
 penskillz update
 ```
 
-If the upstream uses a custom layout, drop a Python module at `lib/extractors/<name>.py` exposing one function:
+Built-in extractors:
+
+| Extractor       | Use for                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| `strix`         | Strix's own `name:` + `description:` frontmatter under `strix/skills/<cat>/<name>.md`.  |
+| `frontmatter-md`| Any upstream that already authors skills as YAML frontmatter + markdown.                |
+| `directory-md`  | Markdown wikis without frontmatter (HackTricks, IATT, PayloadsAllTheThings, MASTG). Skill name from path; supports `include:` / `exclude:` first-segment filters; strips upstream frontmatter and noise. |
+| `yaml-binary`   | Per-binary YAML catalogues (GTFOBins, LOLBAS). Set `options.flavour: gtfobins` or `lolbas`. Groups by technique (e.g. `shell-escape`, `Execute`) rather than one-skill-per-binary. |
+
+If none fit, drop a Python module at `lib/extractors/<name>.py` exposing one function:
 
 ```python
 def extract(*, src, dest, log) -> int:

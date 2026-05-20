@@ -9,15 +9,18 @@
 #   ref         Branch, tag, or commit to track (default: main).
 #   path        Sub-path inside the cloned repo where source skills live.
 #   extractor   Module under lib/extractors/ that knows the upstream layout.
-#                 Built-in: "strix", "frontmatter-md", "prompt-dir".
-#   prefix      Optional prefix prepended to extracted skill names to avoid
-#               collisions across sources (e.g. "strix-").
-#   categories  Optional list to include; empty = all categories the extractor
-#               discovers. For Strix these match directory names.
-#   exclude     Optional categories or skill stems to drop.
+#                 Built-in: strix, frontmatter-md, directory-md, yaml-binary.
+#   prefix      Prefix prepended to extracted skill names to avoid collisions
+#               across sources (e.g. "strix-").
+#   include     Optional whitelist of first-segment directories to extract.
+#               Empty = all (the extractor's default). Used to filter huge wikis.
+#   exclude     Categories / path segments to drop entirely.
+#   options     Extractor-specific knobs (e.g. flavour for yaml-binary).
 #   license     SPDX id of upstream license — surfaced in extracted SKILL.md.
 
 sources:
+  # --- Strix --------------------------------------------------------------
+  # Methodology + attack-class playbooks (web, API, GraphQL, frameworks, cloud).
   - name: strix
     url: https://github.com/usestrix/strix.git
     ref: main
@@ -28,3 +31,116 @@ sources:
       - scan_modes      # Strix-runtime orchestration, not portable skills.
       - coordination    # Strix-internal multi-agent protocols.
     license: FSL-1.1-MIT
+
+  # --- InternalAllTheThings ----------------------------------------------
+  # Active Directory + internal network pentesting. Biggest single Strix gap.
+  - name: internal-all-the-things
+    url: https://github.com/swisskyrepo/InternalAllTheThings.git
+    ref: main
+    path: docs
+    extractor: directory-md
+    prefix: "iatt-"
+    include:
+      - active-directory
+      - cheatsheets
+      - cloud
+      - command-control
+      - containers
+      - databases
+      - devops
+      - methodology
+      - redteam
+    license: CC-BY-NC-4.0
+
+  # --- PayloadsAllTheThings ----------------------------------------------
+  # Web payload library — complements Strix's methodology focus.
+  - name: payloads-all-the-things
+    url: https://github.com/swisskyrepo/PayloadsAllTheThings.git
+    ref: master
+    path: "."
+    extractor: directory-md
+    prefix: "patat-"
+    exclude:
+      - Methodology and Resources    # large topic-graph, awkward to slice
+      - _config.yml
+      - _template_vuln
+      - .github
+      - Images
+    license: MIT
+
+  # --- OWASP MASTG -------------------------------------------------------
+  # Mobile application security testing — iOS + Android.
+  - name: mastg
+    url: https://github.com/OWASP/mastg.git
+    ref: master
+    path: "."
+    extractor: directory-md
+    prefix: "mastg-"
+    include:
+      - tests
+      - tests-beta
+      - techniques
+      - best-practices
+      - Document
+    exclude:
+      - apps          # demo apps, not testing content
+      - demos
+      - Samples
+      - Crackmes
+      - tools
+      - .github
+    license: CC-BY-SA-4.0
+
+  # --- HackTricks --------------------------------------------------------
+  # Massive offsec wiki. Limit to the Strix gaps to keep the catalogue tight.
+  - name: hacktricks
+    url: https://github.com/HackTricks-wiki/hacktricks.git
+    ref: master
+    path: src
+    extractor: directory-md
+    prefix: "ht-"
+    include:
+      - network-services-pentesting
+      - linux-hardening
+      - windows-hardening
+      - mobile-pentesting
+      - generic-methodologies-and-resources
+      - generic-hacking
+      - macos-hardening
+      - hardware-physical-access
+      - binary-exploitation
+      - reversing
+      - exploiting
+      - forensics
+      - todo
+    exclude:
+      - pentesting-web     # Strix covers web vulns better; skip to avoid noise.
+      - banners
+      - images
+      - files
+      - theme
+    license: CC-BY-NC-4.0
+
+  # --- GTFOBins ---------------------------------------------------------
+  # Linux/Unix legit-binary abuse for shell, file IO, privesc.
+  - name: gtfobins
+    url: https://github.com/GTFOBins/GTFOBins.github.io.git
+    ref: master
+    path: _gtfobins
+    extractor: yaml-binary
+    prefix: "gtfobins-"
+    options:
+      flavour: gtfobins
+    license: GPL-3.0
+
+  # --- LOLBAS -----------------------------------------------------------
+  # Signed Windows binaries abusable for execution, persistence, evasion.
+  - name: lolbas
+    url: https://github.com/LOLBAS-Project/LOLBAS.git
+    ref: master
+    path: yml
+    extractor: yaml-binary
+    prefix: "lolbas-"
+    options:
+      flavour: lolbas
+    license: MIT

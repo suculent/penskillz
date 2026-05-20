@@ -1,0 +1,5 @@
+[submodule "sources/strix"]
+	path = sources/strix
+	url = https://github.com/usestrix/strix.git
+	branch = main
+	shallow = true

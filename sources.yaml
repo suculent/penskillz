@@ -1,0 +1,30 @@
+# penskillz source registry
+#
+# Each entry describes an upstream framework whose pentesting playbooks are
+# extracted into agent-friendly skills.
+#
+# Fields:
+#   name        Stable slug used for the git submodule directory and skill prefix.
+#   url         Upstream git URL.
+#   ref         Branch, tag, or commit to track (default: main).
+#   path        Sub-path inside the cloned repo where source skills live.
+#   extractor   Module under lib/extractors/ that knows the upstream layout.
+#                 Built-in: "strix", "frontmatter-md", "prompt-dir".
+#   prefix      Optional prefix prepended to extracted skill names to avoid
+#               collisions across sources (e.g. "strix-").
+#   categories  Optional list to include; empty = all categories the extractor
+#               discovers. For Strix these match directory names.
+#   exclude     Optional categories or skill stems to drop.
+#   license     SPDX id of upstream license — surfaced in extracted SKILL.md.
+
+sources:
+  - name: strix
+    url: https://github.com/usestrix/strix.git
+    ref: main
+    path: strix/skills
+    extractor: strix
+    prefix: "strix-"
+    exclude:
+      - scan_modes      # Strix-runtime orchestration, not portable skills.
+      - coordination    # Strix-internal multi-agent protocols.
+    license: FSL-1.1-MIT

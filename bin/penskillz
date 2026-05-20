@@ -14,6 +14,8 @@ Usage:
                                        Options: --path P  --ref R  --extractor E  --prefix X.
   penskillz remove-source NAME         Drop a source (does not delete cached clone).
   penskillz doctor                     Diagnose environment + agent skill dirs.
+  penskillz summarize                  Rebuild the penskillz-capabilities meta-skill
+                                       and CAPABILITIES.md from the current index.
 
 Environment:
   PENSKILLZ_HOME      Project root (default: parent dir of this script).
@@ -272,14 +274,30 @@ def extract_sources(sources: list[Source], *, log) -> int:
         count = ex.extract(src=src, dest=out_dir, log=log)
         log(f"[extract] {src.name}: {count} skills")
         total += count
-    # Write top-level index manifest.
+    # Write top-level index manifest, then build the capabilities meta-skill.
     write_index()
+    build_capabilities_summary(log=log)
     return total
+
+
+def build_capabilities_summary(*, log) -> None:
+    """Build the penskillz-capabilities meta-skill + pinned CAPABILITIES.md.
+
+    Imported lazily so an extractor failure doesn't prevent the summary
+    from being usable in isolation.
+    """
+    from summary import build_summary  # type: ignore[import-not-found]
+    meta_path, pinned_path = build_summary(ROOT)
+    log(f"[summary] meta-skill -> {meta_path.relative_to(ROOT)}")
+    log(f"[summary] pinned     -> {pinned_path.relative_to(ROOT)}")
 
 
 def write_index() -> None:
     entries = []
     for src_dir in sorted(p for p in DIST_DIR.iterdir() if p.is_dir()) if DIST_DIR.exists() else []:
+        # Skip the meta directory — it's the summary output, not source skills.
+        if src_dir.name == "_meta":
+            continue
         for skill_dir in sorted(p for p in src_dir.iterdir() if p.is_dir()):
             skill_md = skill_dir / "SKILL.md"
             if not skill_md.exists():
@@ -441,6 +459,14 @@ def cmd_remove_source(args, log):
     log(f"[remove-source] dropped {args.name} (clone at sources/{args.name} not deleted)")
 
 
+def cmd_summarize(args, log):
+    if not (DIST_DIR / "index.json").exists():
+        # The index is the input to the summary. Rebuild it cheaply from disk
+        # so `penskillz summarize` works after a manual edit too.
+        write_index()
+    build_capabilities_summary(log=log)
+
+
 def cmd_doctor(args, log):
     ok = True
     if not shutil.which("git"):
@@ -477,6 +503,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_add_source)
     sp = sub.add_parser("remove-source"); sp.add_argument("name"); sp.set_defaults(func=cmd_remove_source)
     sub.add_parser("doctor").set_defaults(func=cmd_doctor)
+    sub.add_parser("summarize").set_defaults(func=cmd_summarize)
     return p
 
 

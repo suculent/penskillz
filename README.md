@@ -69,6 +69,15 @@ The skill body keeps the upstream content verbatim and appends a `## Source` foo
 
 ---
 
+## Capabilities overview (meta-skill)
+
+Loading every skill's frontmatter into an agent's context isn't free — 1,400 descriptions can run ~200 KB. To avoid that, `penskillz extract` and `penskillz update` automatically build:
+
+- `dist/skills/_meta/penskillz-capabilities/SKILL.md` — an installable meta-skill (~18 KB). Agents load this one skill, learn which other skills exist by name, then pull only the ones the engagement needs.
+- `CAPABILITIES.md` — a pinned snapshot at the repo root, committed to git so the latest overview is always available without rebuilding.
+
+Both are regenerated every time skills change. To rebuild only the summary (no resync/re-extract): `penskillz summarize`.
+
 ## CLI
 
 ```text
@@ -78,6 +87,7 @@ penskillz install [--agent NAME]     Copy to agent skill dir. NAME = claude-code
 penskillz update [--agent NAME]      sync + extract + install in one shot.
 penskillz list                       Sources + extracted skill index.
 penskillz status                     Source revs and per-agent install counts.
+penskillz summarize                  Rebuild penskillz-capabilities + CAPABILITIES.md.
 penskillz add-source NAME URL [opts] Register new upstream in sources.yaml.
 penskillz remove-source NAME         Drop a source from sources.yaml.
 penskillz doctor                     Diagnose environment.

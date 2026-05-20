@@ -5,7 +5,10 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-mapfile -t FILES < <(git diff --cached --name-only --diff-filter=ACM \
+FILES=()
+while IFS= read -r line; do
+  [[ -n "$line" ]] && FILES+=("$line")
+done < <(git diff --cached --name-only --diff-filter=ACM \
   | grep -E '^(bin/penskillz$|lib/.*\.py$|scripts/.*\.py$)' \
   | grep -Ev '^sources/' || true)
 

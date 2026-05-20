@@ -15,7 +15,10 @@ ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
 # Files staged in this commit, excluding paths under sources/ (submodules).
-mapfile -t FILES < <(git diff --cached --name-only --diff-filter=ACM | grep -Ev '^sources/' || true)
+FILES=()
+while IFS= read -r line; do
+  [[ -n "$line" ]] && FILES+=("$line")
+done < <(git diff --cached --name-only --diff-filter=ACM | grep -Ev '^sources/' || true)
 [[ ${#FILES[@]} -eq 0 ]] && { echo "check-secrets: OK (no staged top-level files)"; exit 0; }
 
 PATTERNS=(

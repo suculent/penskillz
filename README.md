@@ -204,6 +204,21 @@ penskillz/
     └── CONTRIBUTING.md     # how to add a new upstream + extractor
 ```
 
+## Commit methodology
+
+Pre-commit hooks live in `.husky/` (managed by [husky](https://typicode.github.io/husky/)) and call into `scripts/`. On every commit:
+
+- `sources.yaml` parses and round-trips against `.gitmodules` (no orphan submodule entries, no unknown extractors).
+- Staged Python and bash pass syntax check.
+- A staged grep for known secret patterns (AWS keys, GitHub PATs, private-key headers, etc.).
+- If extractors / `sources.yaml` / `lib/summary.py` are touched, `CAPABILITIES.md` is rebuilt and re-staged so the pinned snapshot can't drift.
+
+Commit messages must follow Conventional Commits (`feat(scope): ...`, `fix: ...`, `docs: ...`, etc.) — enforced by `.husky/commit-msg`.
+
+`pre-push` runs the full extract pipeline end-to-end (skipped automatically on fresh clones where submodules aren't synced yet).
+
+To install the hooks after a fresh clone: `npm install` (runs `husky` via the `prepare` script). To run the same checks ad hoc: `npm run verify`.
+
 ## License
 
 penskillz itself: MIT. Extracted content carries its upstream license — surfaced in each `SKILL.md` footer. Strix content is FSL-1.1-MIT per upstream.

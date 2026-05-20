@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# Conventional Commits enforcement. The $1 arg is the path to the commit message file.
+exec sh "$(git rev-parse --show-toplevel)/scripts/check-commit-msg.sh" "$1"

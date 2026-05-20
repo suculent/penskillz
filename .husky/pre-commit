@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# penskillz pre-commit gate. Edit scripts/ — not this file.
+exec sh "$(git rev-parse --show-toplevel)/scripts/verify-staged.sh"

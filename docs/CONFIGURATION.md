@@ -1,0 +1,79 @@
+# Configuration
+
+All knobs penskillz exposes — `sources.yaml` schema, environment variables, install paths, extractor options.
+
+## `sources.yaml`
+
+Declarative registry of upstream sources. Top-level shape:
+
+```yaml
+sources:
+  - name: <slug>
+    url: <git-url>
+    ref: <branch | tag | commit>
+    path: <subpath-within-clone>
+    extractor: <strix | frontmatter-md | directory-md | yaml-binary | custom>
+    prefix: "<prefix->"
+    include: [<first-segment>, ...]     # optional whitelist
+    exclude: [<first-segment>, ...]     # optional blacklist
+    options:                            # extractor-specific
+      <key>: <value>
+    license: <SPDX-id>
+```
+
+### Field reference
+
+| Field        | Required | Purpose                                                                                |
+| ------------ | -------- | -------------------------------------------------------------------------------------- |
+| `name`       | yes      | Slug used as submodule directory and skill-name prefix base.                           |
+| `url`        | yes      | Upstream git URL.                                                                      |
+| `ref`        | no       | Branch / tag / commit. Defaults to `main`. Pin to a tag for reproducibility.           |
+| `path`       | no       | Sub-path inside the cloned repo where skills live. Defaults to repo root.              |
+| `extractor`  | no       | Module under `lib/extractors/`. Defaults to `strix`.                                   |
+| `prefix`     | no       | Prepended to every emitted skill name. Strongly recommended (avoids cross-source collisions). |
+| `include`    | no       | First-segment whitelist. For `directory-md` only — drops paths not starting with one of these. |
+| `exclude`    | no       | Path segments to drop entirely. Honoured by every extractor.                           |
+| `options`    | no       | Free-form map handed to the extractor (used by `yaml-binary.flavour`).                 |
+| `license`    | no       | SPDX id. Surfaced in each `SKILL.md` footer. Recommended for compliance.               |
+
+### Extractor knobs
+
+**`strix`** — no options.
+
+**`frontmatter-md`** — no options.
+
+**`directory-md`**:
+- `include`: only emit files whose first path segment matches.
+- `exclude`: skip files whose any path segment matches.
+- Built-in: strips upstream YAML frontmatter, HackTricks `{{#include ...}}` shortcodes, MkDocs `hide: toc` markers, and `README.md` / `index.md` at root level (treated as nav, not content). Files under 200 chars (after cleanup) are dropped as stubs.
+
+**`yaml-binary`**:
+- `options.flavour`: `gtfobins` (per-binary YAML with `functions:` keys) or `lolbas` (per-binary YAML with `Commands:` list and `Category:` per command). Emits one skill per technique category, not per binary.
+
+## Environment variables
+
+| Variable               | Default                       | Meaning                                                |
+| ---------------------- | ----------------------------- | ------------------------------------------------------ |
+| `PENSKILLZ_HOME`       | parent of `bin/penskillz`     | Repo root. Lets you run the CLI from any directory.    |
+| `PENSKILLZ_PREFIX`     | unset                         | One-off override for `penskillz install` target dir.   |
+| `PENSKILLZ_REPO`       | github mirror URL             | Installer-side override for the upstream penskillz repo. Useful inside corporate networks. |
+| `CLAUDE_SKILLS_DIR`    | `~/.claude/skills`            | Claude Code install target.                            |
+| `CODEX_SKILLS_DIR`     | `~/.codex/skills`             | Codex install target.                                  |
+| `QWEN_SKILLS_DIR`      | `~/.qwen/skills`              | Qwen Code install target.                              |
+
+## Install paths
+
+`penskillz install` walks `dist/skills/` (every extracted source plus `_meta/`) and copies each `<skill>/` directory into the target agent's skill dir. Each installed directory gets a `.penskillz-managed` file so subsequent `penskillz update` runs can refresh penskillz-owned skills without touching hand-authored skills sharing the same name.
+
+To install everywhere: `penskillz install --agent all`.
+
+## Tracked artifacts
+
+| Path                | Tracked? | Notes                                                                      |
+| ------------------- | -------- | -------------------------------------------------------------------------- |
+| `sources.yaml`      | yes      | Source of truth for the source registry.                                   |
+| `.gitmodules`       | yes      | Pinned submodule paths/refs. Must agree with `sources.yaml`.               |
+| `sources/<name>/`   | yes (refs only) | Git submodule references; the working tree is populated on clone.   |
+| `dist/skills/`      | no       | Build output. Reproducible from `sources/` + `lib/extractors/`.            |
+| `CAPABILITIES.md`   | yes      | Pinned snapshot of the meta-skill body; regenerated by `penskillz summarize`. |
+| `.planning/`        | yes      | Codebase map + future GSD planning artifacts.                              |

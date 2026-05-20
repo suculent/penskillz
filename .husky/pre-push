@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+# Pre-push: run the extract pipeline end-to-end against the current sources.yaml
+# to guarantee what we push is reproducible. Skipped automatically if upstream
+# submodules are not synced (CI / fresh clone).
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+if [ ! -d sources/strix/strix ]; then
+  echo "pre-push: SKIP (sources not synced; run \`penskillz sync\` to enable this gate)"
+  exit 0
+fi
+
+PENSKILLZ_HOME="$ROOT" bin/penskillz extract >/dev/null 2>&1 || {
+  echo "pre-push: FAIL extract pipeline errored"
+  echo "  Reproduce: PENSKILLZ_HOME=\$PWD bin/penskillz extract"
+  exit 1
+}
+
+# Make sure CAPABILITIES.md is in sync with what extract would produce now.
+if ! git diff --quiet -- CAPABILITIES.md; then
+  echo "pre-push: FAIL CAPABILITIES.md is out of date relative to current code/sources"
+  echo "  Reproduce: PENSKILLZ_HOME=\$PWD bin/penskillz summarize && git add CAPABILITIES.md"
+  exit 1
+fi
+
+echo "pre-push: OK"

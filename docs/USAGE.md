@@ -5,7 +5,7 @@ Detailed walkthroughs. For the 30-second overview, see the top-level [README](..
 ## 1. First-time install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sychram/penskillz/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/suculent/penskillz/main/install.sh | bash
 ```
 
 What that does, step by step:

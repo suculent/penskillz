@@ -9,7 +9,7 @@ Today the registry ships [Strix](https://github.com/usestrix/strix) (37 skills c
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sychram/penskillz/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/suculent/penskillz/main/install.sh | bash
 ```
 
 That clones the repo to `~/.penskillz`, pulls all source submodules (Strix, etc.), extracts skills, and installs them into `~/.claude/skills/`. Flags:
@@ -124,7 +124,7 @@ sources:
 
 | Goal              | Command                                                                              |
 | ----------------- | ------------------------------------------------------------------------------------ |
-| **Install**       | `curl -fsSL https://raw.githubusercontent.com/sychram/penskillz/main/install.sh \| bash` |
+| **Install**       | `curl -fsSL https://raw.githubusercontent.com/suculent/penskillz/main/install.sh \| bash` |
 | **Update latest** | `penskillz update`                                                                   |
 
 ---

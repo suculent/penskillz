@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-REPO_URL="${PENSKILLZ_REPO:-https://github.com/sychram/penskillz.git}"
+REPO_URL="${PENSKILLZ_REPO:-https://github.com/suculent/penskillz.git}"
 HOME_DIR="${PENSKILLZ_HOME:-$HOME/.penskillz}"
 AGENT="claude-code"
 
